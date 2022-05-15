@@ -1,24 +1,23 @@
 package scenes
 
 import (
-	"online-game/game"
-	"online-game/game/ui"
-
+	"github.com/dusk125/pixelui"
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
+	"online-game/game"
 )
 
 type GameScene struct {
 	game.Scene
 
 	Window  *pixelgl.Window
-	UI      *ui.UI
-	UIStack ui.UILayerStack
+	UI      *pixelui.UI
+	UIStack game.UILayerStack
 }
 
-func NewGameScene(win *pixelgl.Window) *GameScene {
+func NewGameScene(win *pixelgl.Window, ui *pixelui.UI) *GameScene {
 	s := &GameScene{
-		UI:     ui.NewUI(win),
+		UI:     ui,
 		Window: win,
 	}
 
@@ -26,7 +25,7 @@ func NewGameScene(win *pixelgl.Window) *GameScene {
 	s.Scene = game.NewScene("menu-scene")
 
 	// Set-up UI Stack
-	s.UIStack = ui.NewUILayerStack(s.UI)
+	s.UIStack = game.NewUILayerStack(s.UI)
 
 	return s
 }
@@ -49,7 +48,7 @@ func (menu *GameScene) Load() bool {
 	winSize := menu.Window.Bounds().Size()
 
 	// Layers
-	tempLayer := func(ui *ui.UI) {
+	tempLayer := func(ui *pixelui.UI) {
 
 		margin := pixel.V(20, 20)
 
@@ -62,9 +61,8 @@ func (menu *GameScene) Load() bool {
 	menu.UIStack.PushLayer(tempLayer)
 
 	// Settings
-	tempSetting := ui.UISetting{
+	tempSetting := game.UISetting{
 		Render: []int{0, 0},
-		Input:  []int{0, 0},
 	}
 	menu.UIStack.AddSetting("temp-menu", tempSetting)
 

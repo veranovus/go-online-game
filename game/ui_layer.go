@@ -1,9 +1,12 @@
-package ui
+package game
 
-type UILayer func(*UI)
+import (
+	"github.com/dusk125/pixelui"
+)
+
+type UILayer func(*pixelui.UI)
 
 type UISetting struct {
-	Input  []int
 	Render []int
 }
 
@@ -11,11 +14,11 @@ type UILayerStack struct {
 	Layers        []UILayer
 	Settings      map[string]UISetting
 	Active        *UISetting
-	UI            *UI
+	UI            *pixelui.UI
 	SkipIteration bool
 }
 
-func NewUILayerStack(uiInstance *UI) UILayerStack {
+func NewUILayerStack(uiInstance *pixelui.UI) UILayerStack {
 	return UILayerStack{
 		Layers:        nil,
 		Settings:      make(map[string]UISetting),
@@ -54,21 +57,11 @@ func (s *UILayerStack) Update() {
 	renderStart := s.Active.Render[renderPtr]
 	renderFinal := s.Active.Render[renderPtr+1]
 
-	inputPtr := 0
-	inputStart := s.Active.Input[inputPtr]
-	inputFinal := s.Active.Input[inputPtr+1]
-
 	for i := range s.Layers {
 
 		update := true
 		if i < renderStart || i > renderFinal {
 			update = false
-		}
-
-		if i >= inputStart || i <= inputFinal {
-			s.UI.UnLock()
-		} else {
-			s.UI.Lock()
 		}
 
 		if s.SkipIteration {
@@ -84,11 +77,6 @@ func (s *UILayerStack) Update() {
 			renderPtr += 1
 			renderStart = s.Active.Render[renderPtr]
 			renderFinal = s.Active.Render[renderPtr+1]
-		}
-		if i == inputFinal && renderPtr+1 < len(s.Active.Input)/2 {
-			inputPtr += 1
-			inputStart = s.Active.Input[inputPtr]
-			inputFinal = s.Active.Input[inputPtr+1]
 		}
 	}
 }

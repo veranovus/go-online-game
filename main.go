@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"github.com/dusk125/pixelui"
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
 	"online-game/game"
@@ -20,14 +20,21 @@ func run() {
 		panic(err)
 	}
 
+	// Create pixel UI
+	ui := pixelui.NewUI(win, 0)
+	defer ui.Destroy()
+
+	// Scene manager
 	sceneManager := game.SceneManager{}
 
-	menuScene := scenes.NewMenuScene(win)
+	// Create and add scenes
+	menuScene := scenes.NewMenuScene(win, ui)
 	sceneManager.AddScene(menuScene)
 
-	gameScene := scenes.NewGameScene(win)
+	gameScene := scenes.NewGameScene(win, ui)
 	sceneManager.AddScene(gameScene)
 
+	// Set initial scene
 	sceneManager.SetScene("menu-scene")
 
 	last := time.Now()
@@ -35,17 +42,17 @@ func run() {
 		dt := time.Since(last).Seconds()
 		last = time.Now()
 
-		win.Clear(pixel.RGB(0.06, 0.01, 0.12))
+		ui.NewFrame()
+		win.Clear(pixel.RGB(0.03, 0.005, 0.06))
 
 		sceneManager.Update(dt)
 
+		ui.Draw(win)
 		win.Update()
 	}
 }
 
 func main() {
-
-	fmt.Println(game.GetRelativePath("res/test.png"))
 
 	pixelgl.Run(run)
 }

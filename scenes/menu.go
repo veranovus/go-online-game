@@ -1,30 +1,30 @@
 package scenes
 
 import (
-	"github.com/faiface/pixel"
+	"github.com/dusk125/pixelui"
 	"github.com/faiface/pixel/pixelgl"
+	"github.com/inkyblackness/imgui-go"
 	"online-game/game"
-	"online-game/game/ui"
 )
 
 type MenuScene struct {
 	game.Scene
 
 	Window  *pixelgl.Window
-	UI      *ui.UI
-	UIStack ui.UILayerStack
+	UI      *pixelui.UI
+	UIStack game.UILayerStack
 }
 
-func NewMenuScene(win *pixelgl.Window) *MenuScene {
+func NewMenuScene(win *pixelgl.Window, ui *pixelui.UI) *MenuScene {
 	s := &MenuScene{
-		UI:     ui.NewUI(win),
+		UI:     ui,
 		Window: win,
 	}
 
 	// Set integrated scene
 	s.Scene = game.NewScene("menu-scene")
 
-	s.UIStack = ui.NewUILayerStack(s.UI)
+	s.UIStack = game.NewUILayerStack(s.UI)
 
 	return s
 }
@@ -43,34 +43,37 @@ func (menu *MenuScene) SetID(id int) {
 
 func (menu *MenuScene) Load() bool {
 
-	// Window size
-	winSize := menu.Window.Bounds().Size()
-
 	// Layers
-	mainMenuLayer := func(ui *ui.UI) {
+	mainMenuLayer := func(ui *pixelui.UI) {
 
-		margin := pixel.V(20, 20)
+		imgui.ShowDemoWindow(nil)
 
-		buttonSize := pixel.V(110, 30)
+		windowFlags := imgui.WindowFlagsNoCollapse | imgui.WindowFlagsNoMove |
+			imgui.WindowFlagsNoScrollbar | imgui.WindowFlagsNoResize
 
-		buttonPos := winSize.Sub(buttonSize).Scaled(0.5)
+		if imgui.BeginV("Main Menu", nil, windowFlags) {
 
-		if ui.Button(buttonPos, buttonSize, "Play") {
-			menu.ReturnState = game.SceneStateChange + SceneIndexGame
+			if imgui.Button("Join") {
+
+			}
+
+			if imgui.Button("Host") {
+
+			}
+
+			if imgui.Button("Quit") {
+				menu.Window.SetClosed(true)
+			}
+
+			imgui.End()
 		}
 
-		buttonPos.Y -= buttonSize.Y + margin.Y
-
-		if ui.Button(buttonPos, buttonSize, "Quit") {
-			menu.Window.SetClosed(true)
-		}
 	}
 	menu.UIStack.PushLayer(mainMenuLayer)
 
 	// Settings
-	mainMenuSetting := ui.UISetting{
+	mainMenuSetting := game.UISetting{
 		Render: []int{0, 0},
-		Input:  []int{0, 0},
 	}
 	menu.UIStack.AddSetting("main-menu", mainMenuSetting)
 
