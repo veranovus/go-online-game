@@ -56,7 +56,7 @@ func (menu *MenuScene) Load() bool {
 		buttonPos := winSize.Sub(buttonSize).Scaled(0.5)
 
 		if ui.Button(buttonPos, buttonSize, "Play") {
-			println("Starting the game...")
+			menu.ReturnState = game.SceneStateChange + SceneIndexGame
 		}
 
 		buttonPos.Y -= buttonSize.Y + margin.Y
@@ -89,5 +89,5 @@ func (menu *MenuScene) Update(dt float64) game.SceneState {
 	// Update and Render UIStack
 	menu.UIStack.Update()
 
-	return game.SceneStateOk
+	return menu.ReturnState
 }

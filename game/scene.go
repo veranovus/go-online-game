@@ -23,13 +23,15 @@ type SceneInterface interface {
 }
 
 type Scene struct {
-	Name string
-	ID   int
+	Name        string
+	ID          int
+	ReturnState SceneState
 }
 
 func NewScene(name string) Scene {
 	return Scene{
-		Name: name,
+		Name:        name,
+		ReturnState: SceneStateOk,
 	}
 }
 
@@ -43,7 +45,7 @@ func NewSceneManager() SceneManager {
 	return SceneManager{
 		Scenes: nil,
 		Active: nil,
-		NextID: SceneStateChange + 1,
+		NextID: SceneStateChange,
 	}
 }
 
@@ -57,12 +59,14 @@ func (sm *SceneManager) AddScene(scene SceneInterface) {
 
 // RemoveScene is used the free the memory allocated for the scene,
 // doesn't really remove the scene from the list
+// NOTE: This function is temporarily inactive.
 func (sm *SceneManager) RemoveScene(id int) {
 	if id >= len(sm.Scenes) || id < 0 {
 		log.Fatal("[ERROR] Failed to remove scene because id was out of range.")
 	}
 
-	sm.Scenes[id-SceneStateChange] = nil
+	panic("[ERROR] SceneManager@RemoveScene is temporarily disabled.")
+	//sm.Scenes[id-SceneStateChange] = nil
 }
 
 func (sm *SceneManager) SetScene(name string) bool {
@@ -86,6 +90,29 @@ func (sm *SceneManager) SetScene(name string) bool {
 	return false
 }
 
+func (sm *SceneManager) SetSceneWithID(id int) bool {
+	id = id - SceneStateChange
+
+	if id < 0 || id >= len(sm.Scenes) {
+		log.Fatal("[ERROR] Failed to set scene because id was out of range.")
+		return false
+	}
+
+	// Unload the previous scene
+	if sm.Active != nil {
+		sm.Active.UnLoad()
+	}
+
+	// Set and load the current scene
+	sm.Active = sm.Scenes[id]
+	sm.Active.Load()
+
+	return true
+}
+
 func (sm *SceneManager) Update(dt float64) {
-	sm.Active.Update(dt)
+	result := sm.Active.Update(dt)
+	if result >= SceneStateChange {
+		sm.SetSceneWithID(int(result))
+	}
 }

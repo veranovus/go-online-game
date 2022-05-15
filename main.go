@@ -23,8 +23,10 @@ func run() {
 	sceneManager := game.SceneManager{}
 
 	menuScene := scenes.NewMenuScene(win)
-
 	sceneManager.AddScene(menuScene)
+
+	gameScene := scenes.NewGameScene(win)
+	sceneManager.AddScene(gameScene)
 
 	sceneManager.SetScene("menu-scene")
 
