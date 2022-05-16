@@ -1,12 +1,13 @@
 package main
 
 import (
-	"github.com/dusk125/pixelui"
-	"github.com/faiface/pixel"
-	"github.com/faiface/pixel/pixelgl"
 	"online-game/game"
 	"online-game/scenes"
 	"time"
+
+	"github.com/dusk125/pixelui"
+	"github.com/faiface/pixel"
+	"github.com/faiface/pixel/pixelgl"
 )
 
 func run() {
@@ -23,6 +24,9 @@ func run() {
 	// Create pixel UI
 	ui := pixelui.NewUI(win, 0)
 	defer ui.Destroy()
+
+	// Set style
+	game.SetImGUIStyle()
 
 	// Scene manager
 	sceneManager := game.SceneManager{}
