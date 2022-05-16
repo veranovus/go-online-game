@@ -5,6 +5,8 @@ import (
 	"github.com/dusk125/pixelui"
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/inkyblackness/imgui-go"
+	"log"
+	"online-game/server"
 
 	"online-game/game"
 )
@@ -12,15 +14,18 @@ import (
 type MenuScene struct {
 	game.Scene
 
-	Window  *pixelgl.Window
+	Server *server.Server
+	Window *pixelgl.Window
+
 	UI      *pixelui.UI
 	UIStack game.UILayerStack
 }
 
-func NewMenuScene(win *pixelgl.Window, ui *pixelui.UI) *MenuScene {
+func NewMenuScene(win *pixelgl.Window, ui *pixelui.UI, server *server.Server) *MenuScene {
 	s := &MenuScene{
 		UI:     ui,
 		Window: win,
+		Server: server,
 	}
 
 	// Set integrated scene
@@ -149,6 +154,14 @@ func (menu *MenuScene) Load() bool {
 
 			if imgui.ButtonV("Host", imgui.Vec2{X: buttonSize, Y: 0}) {
 				menu.UIStack.SetSetting("host-game-menu")
+
+				go menu.Server.StartGameLoop()
+
+				go func() {
+					if err := menu.Server.StartServer(*joinIpString, *joinPassString); err != nil {
+						log.Fatal("[SERVER] Server error:", err)
+					}
+				}()
 			}
 
 			imgui.SameLineV(0, margin)
@@ -166,8 +179,6 @@ func (menu *MenuScene) Load() bool {
 
 		windowFlags := imgui.WindowFlagsNoCollapse | imgui.WindowFlagsNoMove |
 			imgui.WindowFlagsNoScrollbar | imgui.WindowFlagsNoResize | imgui.WindowFlagsNoScrollWithMouse
-
-		imgui.ShowDemoWindow(nil)
 
 		if imgui.BeginV("Host Game##Next", nil, windowFlags) {
 

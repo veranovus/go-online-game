@@ -5,20 +5,24 @@ import (
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
 	"online-game/game"
+	"online-game/server"
 )
 
 type GameScene struct {
 	game.Scene
 
-	Window  *pixelgl.Window
+	Server *server.Server
+	Window *pixelgl.Window
+
 	UI      *pixelui.UI
 	UIStack game.UILayerStack
 }
 
-func NewGameScene(win *pixelgl.Window, ui *pixelui.UI) *GameScene {
+func NewGameScene(win *pixelgl.Window, ui *pixelui.UI, server *server.Server) *GameScene {
 	s := &GameScene{
 		UI:     ui,
 		Window: win,
+		Server: server,
 	}
 
 	// Set integrated scene

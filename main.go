@@ -2,7 +2,9 @@ package main
 
 import (
 	"online-game/game"
+	"online-game/ncom"
 	"online-game/scenes"
+	"online-game/server"
 	"time"
 
 	"github.com/dusk125/pixelui"
@@ -31,11 +33,16 @@ func run() {
 	// Scene manager
 	sceneManager := game.SceneManager{}
 
+	// Create Server
+	server := &server.Server{
+		Channel: make(chan ncom.Message),
+	}
+
 	// Create and add scenes
-	menuScene := scenes.NewMenuScene(win, ui)
+	menuScene := scenes.NewMenuScene(win, ui, server)
 	sceneManager.AddScene(menuScene)
 
-	gameScene := scenes.NewGameScene(win, ui)
+	gameScene := scenes.NewGameScene(win, ui, server)
 	sceneManager.AddScene(gameScene)
 
 	// Set initial scene
