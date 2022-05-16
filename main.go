@@ -12,7 +12,7 @@ import (
 
 func run() {
 	cfg := pixelgl.WindowConfig{
-		Title:  "Go RCP",
+		Title:  "Go RPC",
 		Bounds: pixel.R(0, 0, 800, 600),
 		VSync:  true,
 	}

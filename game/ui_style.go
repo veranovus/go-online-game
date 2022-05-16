@@ -42,7 +42,7 @@ func SetImGUIStyle() {
 	imgui.PushStyleColor(imgui.StyleColorTabActive, imgui.Vec4{0.23 + 0.19, 0.23 + 0.19, 0.24 + 0.19, 1.00})
 	imgui.PushStyleColor(imgui.StyleColorTabUnfocused, imgui.Vec4{0.08 + 0.19, 0.08 + 0.19, 0.09 + 0.19, 1.00})
 	imgui.PushStyleColor(imgui.StyleColorTabUnfocusedActive, imgui.Vec4{0.13 + 0.19, 0.14 + 0.19, 0.15 + 0.19, 1.00})
-	//imgui.PushStyleColor(imgui.StyleColorDockingPreview,imgui.Vec4{0.26+0.1,0.59+0.1,0.98+0.1,0.70})
+	//imgui.PushStyleColor(imgui.StyleColorDockingPreview, imgui.Vec4{0.26 + 0.1, 0.59 + 0.1, 0.98 + 0.1, 0.70})
 	//imgui.PushStyleColor(imgui.StyleColorDockingEmptyBg,imgui.Vec4{0.20+0.1,0.20+0.1,0.20+0.1,1.00})
 	imgui.PushStyleColor(imgui.StyleColorPlotLines, imgui.Vec4{0.61 + 0.19, 0.61 + 0.19, 0.61 + 0.19, 1.00})
 	imgui.PushStyleColor(imgui.StyleColorPlotLinesHovered, imgui.Vec4{1.00 + 0.19, 0.43 + 0.19, 0.35 + 0.19, 1.00})
@@ -55,8 +55,8 @@ func SetImGUIStyle() {
 	//imgui.PushStyleColor(imgui.StyleColorNavWindowingDimBg,imgui.Vec4{0.80+0.1,0.80+0.1,0.80+0.1,0.20})
 	//imgui.PushStyleColor(imgui.StyleColorModalWindowDimBg,imgui.Vec4{0.80+0.1,0.80+0.1,0.80+0.1,0.35})
 
-	//style.GrabRounding                           = style.FrameRounding = 2.3f;
 	imgui.PushStyleVarFloat(imgui.StyleVarFrameRounding, 0)
 	imgui.PushStyleVarFloat(imgui.StyleVarWindowRounding, 0)
-	//imgui.PushStyleVarFloat(imgui.StyleVarFrameBorderSize, 1)
+	imgui.PushStyleVarFloat(imgui.StyleVarTabRounding, 0)
+	imgui.PushStyleVarFloat(imgui.StyleVarFrameBorderSize, 1)
 }

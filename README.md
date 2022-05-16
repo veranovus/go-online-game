@@ -3,14 +3,12 @@
 Classic "Rock Paper Scissor" game made in Golang using SDL2 and
 Golang networking module. 
 
-> Version 0.05
+> Version 0.06
 
 ## Changelog
 
-- ImGUI style
-- `Host Game` window
-- `Join Game` window
-- Graphics type
+- Updated the `imgui-go` version to `v4.4.0`
+- `host-loby` ui 
 
 ## Usage
 

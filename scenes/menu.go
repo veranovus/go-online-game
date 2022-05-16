@@ -1,9 +1,11 @@
 package scenes
 
 import (
+	"fmt"
 	"github.com/dusk125/pixelui"
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/inkyblackness/imgui-go"
+
 	"online-game/game"
 )
 
@@ -47,15 +49,29 @@ func (menu *MenuScene) Load() bool {
 	joinIpString := new(string)
 	joinPassString := new(string)
 
+	// Ready
+	guestReady := new(bool)
+	*guestReady = false
+
+	playerReady := new(bool)
+	*playerReady = false
+
+	// Game
+	gameLength := new(int32)
+	*gameLength = 3
+
+	gameTime := new(int32)
+	*gameTime = 30
+
 	// Layers
 	mainMenuLayer := func(ui *pixelui.UI) {
 
 		windowFlags := imgui.WindowFlagsNoCollapse | imgui.WindowFlagsNoMove |
-			imgui.WindowFlagsNoScrollbar | imgui.WindowFlagsNoResize
+			imgui.WindowFlagsNoScrollbar | imgui.WindowFlagsNoResize | imgui.WindowFlagsNoScrollWithMouse
 
 		if imgui.BeginV("Main Menu", nil, windowFlags) {
 
-			margin := imgui.CursorPos().X + 20
+			margin := imgui.CursorPos().X
 
 			buttonSize := imgui.WindowWidth() - margin*2
 			buttonPos := imgui.Vec2{X: margin, Y: imgui.CursorPos().Y}
@@ -89,7 +105,7 @@ func (menu *MenuScene) Load() bool {
 	joinMenuStack := func(ui *pixelui.UI) {
 
 		windowFlags := imgui.WindowFlagsNoCollapse | imgui.WindowFlagsNoMove |
-			imgui.WindowFlagsNoScrollbar | imgui.WindowFlagsNoResize
+			imgui.WindowFlagsNoScrollbar | imgui.WindowFlagsNoResize | imgui.WindowFlagsNoScrollWithMouse
 
 		if imgui.BeginV("Join Game", nil, windowFlags) {
 
@@ -99,7 +115,7 @@ func (menu *MenuScene) Load() bool {
 
 			imgui.InputText("Host IP", joinIpString)
 
-			imgui.InputText("Password", joinPassString)
+			imgui.InputTextV("Password", joinPassString, imgui.InputTextFlagsPassword, nil)
 
 			if imgui.ButtonV("Join", imgui.Vec2{X: buttonSize, Y: 0}) {
 
@@ -119,7 +135,7 @@ func (menu *MenuScene) Load() bool {
 	hostMenuLayer := func(ui *pixelui.UI) {
 
 		windowFlags := imgui.WindowFlagsNoCollapse | imgui.WindowFlagsNoMove |
-			imgui.WindowFlagsNoScrollbar | imgui.WindowFlagsNoResize
+			imgui.WindowFlagsNoScrollbar | imgui.WindowFlagsNoResize | imgui.WindowFlagsNoScrollWithMouse
 
 		if imgui.BeginV("Host Game", nil, windowFlags) {
 
@@ -129,10 +145,10 @@ func (menu *MenuScene) Load() bool {
 
 			imgui.InputText("Host IP", joinIpString)
 
-			imgui.InputText("Password", joinPassString)
+			imgui.InputTextV("Password", joinPassString, imgui.InputTextFlagsPassword, nil)
 
 			if imgui.ButtonV("Host", imgui.Vec2{X: buttonSize, Y: 0}) {
-
+				menu.UIStack.SetSetting("host-game-menu")
 			}
 
 			imgui.SameLineV(0, margin)
@@ -145,6 +161,110 @@ func (menu *MenuScene) Load() bool {
 		}
 	}
 	menu.UIStack.PushLayer(hostMenuLayer)
+
+	hostGameMenuLayer := func(ui *pixelui.UI) {
+
+		windowFlags := imgui.WindowFlagsNoCollapse | imgui.WindowFlagsNoMove |
+			imgui.WindowFlagsNoScrollbar | imgui.WindowFlagsNoResize | imgui.WindowFlagsNoScrollWithMouse
+
+		imgui.ShowDemoWindow(nil)
+
+		if imgui.BeginV("Host Game##Next", nil, windowFlags) {
+
+			var pureMargin float32 = 10
+			margin := imgui.CursorPos().X
+
+			imgui.BeginTabBar("GameBar")
+
+			if imgui.BeginTabItem("Players") {
+
+				imgui.SetCursorPos(imgui.CursorPos().Plus(imgui.Vec2{Y: pureMargin}))
+
+				nameSize := imgui.WindowWidth() - (pureMargin*2 + 15 +
+					imgui.CalcTextSize("Ready", false, 0).X + pureMargin)
+
+				imgui.ButtonV("Guest", imgui.Vec2{X: nameSize, Y: 0})
+
+				imgui.SameLineV(0, pureMargin)
+
+				if imgui.Checkbox("Ready##Guest", guestReady) {
+					*guestReady = false
+				}
+
+				imgui.ButtonV("You", imgui.Vec2{X: nameSize, Y: 0})
+
+				imgui.SameLineV(0, pureMargin)
+
+				if imgui.Checkbox("Ready##Player", playerReady) {
+
+				}
+
+				imgui.SetCursorPos(imgui.CursorPos().Plus(imgui.Vec2{Y: pureMargin}))
+
+				imgui.EndTabItem()
+			}
+
+			if imgui.BeginTabItem("Settings") {
+
+				imgui.SetCursorPos(imgui.CursorPos().Plus(imgui.Vec2{Y: pureMargin}))
+
+				imgui.Text("Win Condition")
+
+				imgui.PushItemWidth(-1)
+				imgui.InputIntV("##GameLength", gameLength, 1, 100, 0)
+
+				imgui.Text("Round Time (seconds)")
+
+				imgui.PushItemWidth(-1)
+				if imgui.InputIntV("##GameTime", gameTime, 30, 100, 0) {
+					if *gameTime < 30 {
+						*gameTime = 30
+					} else if *gameTime > 300 {
+						*gameTime = 300
+					}
+				}
+
+				imgui.SetCursorPos(imgui.CursorPos().Plus(imgui.Vec2{Y: pureMargin}))
+
+				imgui.EndTabItem()
+			}
+
+			imgui.EndTabBar()
+
+			imgui.Separator()
+
+			buttonSize := (imgui.WindowWidth() - margin*2 - pureMargin) / 2
+			buttonPos := imgui.Vec2{X: margin, Y: imgui.CursorPos().Y + pureMargin}
+
+			imgui.SetCursorPos(buttonPos)
+
+			if !*playerReady || !*guestReady {
+				imgui.PushItemFlag(imgui.ItemFlagsDisabled, true)
+				imgui.PushStyleColor(
+					imgui.StyleColorButton,
+					imgui.Vec4{X: 0.30, Y: 0.30, Z: 0.30, W: 1.0},
+				)
+			}
+
+			if imgui.ButtonV("Start", imgui.Vec2{X: buttonSize, Y: 0}) {
+				fmt.Println("PRESSED!")
+			}
+
+			if !*playerReady || !*guestReady {
+				imgui.PopStyleColor()
+				imgui.PopItemFlag()
+			}
+
+			imgui.SameLineV(0, pureMargin)
+
+			if imgui.ButtonV("Abort", imgui.Vec2{X: buttonSize, Y: 0}) {
+				menu.UIStack.SetSetting("main-menu")
+			}
+
+			imgui.End()
+		}
+	}
+	menu.UIStack.PushLayer(hostGameMenuLayer)
 
 	// Settings
 	mainMenuSetting := game.UISetting{
@@ -161,6 +281,11 @@ func (menu *MenuScene) Load() bool {
 		Render: []int{2, 2},
 	}
 	menu.UIStack.AddSetting("host-menu", hostMenuSetting)
+
+	hostGameMenuSetting := game.UISetting{
+		Render: []int{3, 3},
+	}
+	menu.UIStack.AddSetting("host-game-menu", hostGameMenuSetting)
 
 	// Set the active settings
 	menu.UIStack.SetSetting("main-menu")
