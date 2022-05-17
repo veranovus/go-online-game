@@ -1,6 +1,10 @@
 package ncom
 
-import "net"
+import (
+	"fmt"
+	"net"
+	"strconv"
+)
 
 const (
 	MessageTypeUnknown = iota
@@ -13,18 +17,49 @@ const (
 	MessageTypeUserDenied
 	MessageTypeUserAccepted
 
+	MessageTypeServerMessage
 	MessageTypeUserMessage
+
 	MessageTypeUserReadyState
 	MessageTypeUserSelected
 )
+
+func GetMessageType(msg string) int {
+	if len(msg) == 0 {
+		return MessageTypeUnknown
+	}
+
+	msgType, err := strconv.Atoi(string(msg[0]))
+	if err != nil {
+		return MessageTypeUnknown
+	}
+
+	return msgType
+}
 
 type Session struct {
 	Conn   net.Conn
 	Active bool
 }
 
+func (s *Session) CloseSession() error {
+	err := s.Conn.Close()
+	s.Active = false
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (s *Session) WriteLine(str string) error {
 	_, err := s.Conn.Write([]byte(str + "\r\n"))
+	return err
+}
+
+func (s *Session) SendMessage(t int32, m string) error {
+	err := s.WriteLine(fmt.Sprintf("%d%s", t, m))
 	return err
 }
 
@@ -52,9 +87,14 @@ type UserAuthenticationEvent struct {
 }
 
 type UserDeniedEvent struct {
+	Message string
 }
 
 type UserAcceptedEvent struct {
+}
+
+type ServerMessageEvent struct {
+	Message string
 }
 
 type UserMessageEvent struct {

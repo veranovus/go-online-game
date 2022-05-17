@@ -15,30 +15,6 @@ type Server struct {
 	Channel  chan ncom.Message
 }
 
-func getMessageType(msg string) int {
-	if len(msg) == 0 {
-		return ncom.MessageTypeUnknown
-	}
-
-	msgType, err := strconv.Atoi(string(msg[0]))
-	if err != nil {
-		return ncom.MessageTypeUnknown
-	}
-
-	return msgType
-}
-
-func closeSession(sess *ncom.Session) error {
-	err := sess.Conn.Close()
-	sess.Active = false
-
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func authenticateUser(
 	user *ncom.User,
 	msgChannel chan ncom.Message,
@@ -48,7 +24,7 @@ func authenticateUser(
 
 	if !user.Authenticated {
 		if *authSent {
-			err := closeSession(user.Session)
+			err := user.Session.CloseSession()
 			user.Authenticated = false
 
 			if err != nil {
@@ -136,7 +112,7 @@ func handleConnection(conn net.Conn, msgChannel chan ncom.Message) error {
 		}
 
 		// Get and validate the message type
-		msgType := getMessageType(msg)
+		msgType := ncom.GetMessageType(msg)
 		if msgType == ncom.MessageTypeUnknown {
 			log.Printf("[%s] Unknown type of message, or message layout.\n", user.Name)
 			continue
@@ -149,7 +125,7 @@ func handleConnection(conn net.Conn, msgChannel chan ncom.Message) error {
 
 		switch msgType {
 		case ncom.MessageTypeUserDisconnected:
-			err = closeSession(session)
+			err = session.CloseSession()
 
 			message = ncom.Message{
 				User:    user,
@@ -227,8 +203,11 @@ func (server *Server) StartServer(address, password string) error {
 		if conn != nil && server.Guest != nil {
 			sess := &ncom.Session{Conn: conn}
 
-			err = sess.WriteLine(
-				fmt.Sprintf("%cAnother user is connected.", ncom.MessageTypeUserDenied))
+			err = sess.SendMessage(
+				ncom.MessageTypeUserDenied,
+				"Another user is connected.",
+			)
+
 			if err != nil {
 				return err
 			}
@@ -256,11 +235,10 @@ func (server *Server) StartGameLoop() {
 		case *ncom.UserJoinedEvent:
 			log.Printf("[%s] Connected.", input.User.Name)
 
-			resp := fmt.Sprintf(
-				"[SERVER] '%s' connection accepted vaiting for authentication.",
-				input.User.Name)
-
-			_ = input.User.Session.WriteLine(resp)
+			_ = input.User.Session.SendMessage(
+				ncom.MessageTypeServerMessage,
+				"Connection accepted waiting for authentication.",
+			)
 		case *ncom.UserDisconnectedEvent:
 			log.Printf("[%s] Disconnected.", input.User.Name)
 
@@ -272,16 +250,13 @@ func (server *Server) StartGameLoop() {
 
 				log.Printf("[%s] Authenticated.\n", input.User.Name)
 
-				resp := fmt.Sprintf("[SERVER] Authentication succesful.")
-				_ = input.User.Session.WriteLine(resp)
+				_ = input.User.Session.SendMessage(
+					ncom.MessageTypeUserAccepted, "")
 			} else {
 				log.Printf("[%s] Failed to authenticate.\n", input.User.Name)
 			}
 		case *ncom.UserMessageEvent:
 			log.Printf("[%s] `%s`\n", input.User.Name, event.Message)
-
-			resp := fmt.Sprintf("[SERVER] ECHO - `%s`", event.Message)
-			_ = input.User.Session.WriteLine(resp)
 		default:
 			log.Printf("[SERVER] Error! Unknown event `%v`.\n", event)
 		}

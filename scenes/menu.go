@@ -6,6 +6,7 @@ import (
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/inkyblackness/imgui-go"
 	"log"
+	"online-game/client"
 	"online-game/server"
 
 	"online-game/game"
@@ -14,17 +15,26 @@ import (
 type MenuScene struct {
 	game.Scene
 
+	Client *client.Client
 	Server *server.Server
+
 	Window *pixelgl.Window
 
 	UI      *pixelui.UI
 	UIStack game.UILayerStack
 }
 
-func NewMenuScene(win *pixelgl.Window, ui *pixelui.UI, server *server.Server) *MenuScene {
+func NewMenuScene(
+	win *pixelgl.Window,
+	ui *pixelui.UI,
+	server *server.Server,
+	client *client.Client,
+) *MenuScene {
+
 	s := &MenuScene{
 		UI:     ui,
 		Window: win,
+		Client: client,
 		Server: server,
 	}
 
@@ -123,7 +133,13 @@ func (menu *MenuScene) Load() bool {
 			imgui.InputTextV("Password", joinPassString, imgui.InputTextFlagsPassword, nil)
 
 			if imgui.ButtonV("Join", imgui.Vec2{X: buttonSize, Y: 0}) {
+				go menu.Client.StartGameLoop()
 
+				go func() {
+					if err := menu.Client.ConnectToServer(*joinIpString, *joinPassString); err != nil {
+						log.Fatal("[SERVER] Server error:", err)
+					}
+				}()
 			}
 
 			imgui.SameLineV(0, margin)

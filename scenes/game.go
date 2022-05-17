@@ -4,6 +4,7 @@ import (
 	"github.com/dusk125/pixelui"
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
+	"online-game/client"
 	"online-game/game"
 	"online-game/server"
 )
@@ -11,17 +12,26 @@ import (
 type GameScene struct {
 	game.Scene
 
+	Client *client.Client
 	Server *server.Server
+
 	Window *pixelgl.Window
 
 	UI      *pixelui.UI
 	UIStack game.UILayerStack
 }
 
-func NewGameScene(win *pixelgl.Window, ui *pixelui.UI, server *server.Server) *GameScene {
+func NewGameScene(
+	win *pixelgl.Window,
+	ui *pixelui.UI,
+	server *server.Server,
+	client *client.Client,
+) *GameScene {
+
 	s := &GameScene{
 		UI:     ui,
 		Window: win,
+		Client: client,
 		Server: server,
 	}
 

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"online-game/client"
 	"online-game/game"
 	"online-game/ncom"
 	"online-game/scenes"
@@ -34,15 +35,19 @@ func run() {
 	sceneManager := game.SceneManager{}
 
 	// Create Server
-	server := &server.Server{
+	s := &server.Server{
 		Channel: make(chan ncom.Message),
+	}
+	c := &client.Client{
+		Channel:       make(chan ncom.Message),
+		Authenticated: false,
 	}
 
 	// Create and add scenes
-	menuScene := scenes.NewMenuScene(win, ui, server)
+	menuScene := scenes.NewMenuScene(win, ui, s, c)
 	sceneManager.AddScene(menuScene)
 
-	gameScene := scenes.NewGameScene(win, ui, server)
+	gameScene := scenes.NewGameScene(win, ui, s, c)
 	sceneManager.AddScene(gameScene)
 
 	// Set initial scene
