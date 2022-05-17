@@ -42,12 +42,13 @@ func run() {
 		Channel:       make(chan ncom.Message),
 		Authenticated: false,
 	}
+	player := game.NewPlayer(s, c)
 
 	// Create and add scenes
-	menuScene := scenes.NewMenuScene(win, ui, s, c)
+	menuScene := scenes.NewMenuScene(win, ui, p)
 	sceneManager.AddScene(menuScene)
 
-	gameScene := scenes.NewGameScene(win, ui, s, c)
+	gameScene := scenes.NewGameScene(win, ui, p)
 	sceneManager.AddScene(gameScene)
 
 	// Set initial scene

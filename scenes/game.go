@@ -4,16 +4,13 @@ import (
 	"github.com/dusk125/pixelui"
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
-	"online-game/client"
 	"online-game/game"
-	"online-game/server"
 )
 
 type GameScene struct {
 	game.Scene
 
-	Client *client.Client
-	Server *server.Server
+	Player *game.Player
 
 	Window *pixelgl.Window
 
@@ -24,15 +21,13 @@ type GameScene struct {
 func NewGameScene(
 	win *pixelgl.Window,
 	ui *pixelui.UI,
-	server *server.Server,
-	client *client.Client,
+	player *game.Player,
 ) *GameScene {
 
 	s := &GameScene{
 		UI:     ui,
 		Window: win,
-		Client: client,
-		Server: server,
+		Player: player,
 	}
 
 	// Set integrated scene

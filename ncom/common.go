@@ -9,7 +9,7 @@ import (
 const (
 	MessageTypeUnknown = iota
 
-	MessageTypeUserJoined
+	MessageTypeServerDisconnected
 	MessageTypeUserDisconnected
 
 	MessageTypeUserAuthentication
@@ -76,31 +76,20 @@ type Message struct {
 	Message Event
 }
 
-type UserJoinedEvent struct {
-}
+type UserJoinedEvent struct{}
 
-type UserDisconnectedEvent struct {
-}
+type ServerDisconnectedEvent struct{}
 
-type UserAuthenticationEvent struct {
-	Password string
-}
+type UserDisconnectedEvent struct{}
 
-type UserDeniedEvent struct {
-	Message string
-}
+type UserAuthenticationEvent struct{ Password string }
 
-type UserAcceptedEvent struct {
-}
+type UserDeniedEvent struct{ Message string }
 
-type ServerMessageEvent struct {
-	Message string
-}
+type UserAcceptedEvent struct{}
 
-type UserMessageEvent struct {
-	Message string
-}
+type ServerMessageEvent struct{ Message string }
 
-type UserReadyEvent struct {
-	State bool
-}
+type UserMessageEvent struct{ Message string }
+
+type UserReadyEvent struct{ State bool }

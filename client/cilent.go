@@ -21,6 +21,17 @@ func (c *Client) processMessage(msgType int, msg string) error {
 	var message ncom.Message
 
 	switch msgType {
+	case ncom.MessageTypeServerDisconnected:
+		err := c.Server.Session.CloseSession()
+		if err != nil {
+			return err
+		}
+
+		message = ncom.Message{
+			User:    c.Server,
+			Message: &ncom.ServerDisconnectedEvent{},
+		}
+		break
 	case ncom.MessageTypeUserAccepted:
 		c.Authenticated = true
 
@@ -193,6 +204,9 @@ func (c *Client) StartGameLoop() {
 	for input := range c.Channel {
 
 		switch event := input.Message.(type) {
+		case *ncom.ServerDisconnectedEvent:
+			log.Println("[SERVER] Disconnected.")
+			break
 		case *ncom.UserAcceptedEvent:
 			log.Println("[SERVER] Authentication successful.")
 			break

@@ -7,12 +7,15 @@ import (
 	"net"
 	"online-game/ncom"
 	"strconv"
+	"time"
 )
 
 type Server struct {
 	Guest    *ncom.User
 	Password string
 	Channel  chan ncom.Message
+	Listener net.Listener
+	Active   bool
 }
 
 func authenticateUser(
@@ -183,18 +186,43 @@ func handleConnection(conn net.Conn, msgChannel chan ncom.Message) error {
 	return nil
 }
 
+func (server *Server) CloseServer() error {
+	if server.Guest != nil {
+		_ = server.Guest.Session.SendMessage(
+			ncom.MessageTypeServerDisconnected, "",
+		)
+	}
+
+	server.Active = false
+	time.Sleep((1 * time.Second) / 2)
+
+	server.Guest = nil
+	err := server.Listener.Close()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (server *Server) StartServer(address, password string) error {
 	log.Println("[SERVER] Starting.")
 
-	ln, err := net.Listen("tcp", address)
+	var err error
+	server.Listener, err = net.Listen("tcp", address)
 	if err != nil {
 		return err
 	}
 
 	server.Password = password
+	server.Active = true
 
 	for {
-		conn, err := ln.Accept()
+		if !server.Active {
+			break
+		}
+
+		conn, err := server.Listener.Accept()
 		if err != nil {
 			log.Println("[SERVER] Failed to accept the connection.", err)
 			continue
@@ -227,6 +255,8 @@ func (server *Server) StartServer(address, password string) error {
 			}
 		}()
 	}
+
+	return nil
 }
 
 func (server *Server) StartGameLoop() {

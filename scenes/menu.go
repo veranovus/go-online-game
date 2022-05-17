@@ -6,17 +6,13 @@ import (
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/inkyblackness/imgui-go"
 	"log"
-	"online-game/client"
-	"online-game/server"
-
 	"online-game/game"
 )
 
 type MenuScene struct {
 	game.Scene
 
-	Client *client.Client
-	Server *server.Server
+	Player *game.Player
 
 	Window *pixelgl.Window
 
@@ -27,15 +23,13 @@ type MenuScene struct {
 func NewMenuScene(
 	win *pixelgl.Window,
 	ui *pixelui.UI,
-	server *server.Server,
-	client *client.Client,
+	player *game.Player,
 ) *MenuScene {
 
 	s := &MenuScene{
 		UI:     ui,
 		Window: win,
-		Client: client,
-		Server: server,
+		Player: player,
 	}
 
 	// Set integrated scene
@@ -65,6 +59,8 @@ func (menu *MenuScene) Load() bool {
 	joinPassString := new(string)
 
 	// Ready
+	// TODO : Make this dependent to player, and
+	// TODO : use the same layer for `host-game-menu`
 	guestReady := new(bool)
 	*guestReady = false
 
@@ -77,6 +73,10 @@ func (menu *MenuScene) Load() bool {
 
 	gameTime := new(int32)
 	*gameTime = 30
+
+	// Waits
+	closingServer := new(bool)
+	*closingServer = false
 
 	// Layers
 	mainMenuLayer := func(ui *pixelui.UI) {
@@ -133,10 +133,12 @@ func (menu *MenuScene) Load() bool {
 			imgui.InputTextV("Password", joinPassString, imgui.InputTextFlagsPassword, nil)
 
 			if imgui.ButtonV("Join", imgui.Vec2{X: buttonSize, Y: 0}) {
-				go menu.Client.StartGameLoop()
+				menu.Player.Type = game.PlayerTypeClient
+
+				go menu.Player.Client.StartGameLoop()
 
 				go func() {
-					if err := menu.Client.ConnectToServer(*joinIpString, *joinPassString); err != nil {
+					if err := menu.Player.Client.ConnectToServer(*joinIpString, *joinPassString); err != nil {
 						log.Fatal("[SERVER] Server error:", err)
 					}
 				}()
@@ -171,10 +173,12 @@ func (menu *MenuScene) Load() bool {
 			if imgui.ButtonV("Host", imgui.Vec2{X: buttonSize, Y: 0}) {
 				menu.UIStack.SetSetting("host-game-menu")
 
-				go menu.Server.StartGameLoop()
+				menu.Player.Type = game.PlayerTypeServer
+
+				go menu.Player.Server.StartGameLoop()
 
 				go func() {
-					if err := menu.Server.StartServer(*joinIpString, *joinPassString); err != nil {
+					if err := menu.Player.Server.StartServer(*joinIpString, *joinPassString); err != nil {
 						log.Fatal("[SERVER] Server error:", err)
 					}
 				}()
@@ -284,8 +288,30 @@ func (menu *MenuScene) Load() bool {
 
 			imgui.SameLineV(0, pureMargin)
 
+			if *closingServer {
+				imgui.PushItemFlag(imgui.ItemFlagsDisabled, true)
+				imgui.PushStyleColor(
+					imgui.StyleColorButton,
+					imgui.Vec4{X: 0.30, Y: 0.30, Z: 0.30, W: 1.0},
+				)
+			}
+
 			if imgui.ButtonV("Abort", imgui.Vec2{X: buttonSize, Y: 0}) {
-				menu.UIStack.SetSetting("main-menu")
+				go func() {
+					menu.Player.Type = game.PlayerTypeUndefined
+
+					*closingServer = true
+					if err := menu.Player.Server.CloseServer(); err != nil {
+						log.Println("[SERVER] Error during server termination:\n", err)
+					}
+					menu.UIStack.SetSetting("main-menu")
+					*closingServer = false
+				}()
+			}
+
+			if *closingServer {
+				imgui.PopStyleColor()
+				imgui.PopItemFlag()
 			}
 
 			imgui.End()
