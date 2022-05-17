@@ -3,7 +3,9 @@ package ncom
 import "net"
 
 const (
-	MessageTypeUserJoined = iota
+	MessageTypeUnknown = iota
+
+	MessageTypeUserJoined
 	MessageTypeUserDisconnected
 
 	MessageTypeUserAuthentication
