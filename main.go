@@ -45,10 +45,10 @@ func run() {
 	player := game.NewPlayer(s, c)
 
 	// Create and add scenes
-	menuScene := scenes.NewMenuScene(win, ui, p)
+	menuScene := scenes.NewMenuScene(win, ui, player)
 	sceneManager.AddScene(menuScene)
 
-	gameScene := scenes.NewGameScene(win, ui, p)
+	gameScene := scenes.NewGameScene(win, ui, player)
 	sceneManager.AddScene(gameScene)
 
 	// Set initial scene
