@@ -47,6 +47,11 @@ func (s *Server) OnUserMessages(msg gnet.Message) {
 				MessageTypeUserAuthSuccessful,
 				"",
 			)
+			s.Server.SendMessage(
+				msg.Sess,
+				MessageTypeSetReady,
+				strconv.FormatBool(s.Player.Ready),
+			)
 		}
 		break
 	case MessageTypeUserDisconnect:

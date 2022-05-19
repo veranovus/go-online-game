@@ -26,13 +26,17 @@ func NewClient(p *Player) *Client {
 }
 
 func (c *Client) SendPassword() {
-	err := c.Client.Session.SendMessage(
+	_ = c.SendMessage(
 		MessageTypeUserPassword,
 		c.Player.Password,
 	)
-	if err != nil {
-		log.Println(err)
+}
+
+func (c *Client) SendMessage(t int, content string) bool {
+	if !c.Client.Connected() {
+		return false
 	}
+	return c.Client.SendMessage(t, content)
 }
 
 func (c *Client) WaitForConnection() bool {
@@ -64,6 +68,7 @@ func (c *Client) ProcessMessages() {
 			case MessageTypeUserAuthFailed:
 				log.Println("[SERVER] Password authentication failed.")
 				log.Println("[CLIENT] Disconnected.")
+				c.Player.Reset()
 				c.Client.Session.Close()
 				return
 			case MessageTypeUserAuthSuccessful:
@@ -71,6 +76,7 @@ func (c *Client) ProcessMessages() {
 				break
 			case MessageTypeServerDisconnect:
 				log.Println("[SERVER] Disconnected.")
+				c.Player.Reset()
 				c.Client.Session.Close()
 				return
 			case MessageTypeSetReady:

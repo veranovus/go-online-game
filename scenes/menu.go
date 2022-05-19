@@ -245,12 +245,12 @@ func (menu *MenuScene) Load() bool {
 						}
 						break
 					case game.PlayerTypeClient:
-						err := menu.Game.Client.Client.Session.SendMessage(
+						sent := menu.Game.Client.SendMessage(
 							game.MessageTypeSetReady,
 							strconv.FormatBool(menu.Game.Player.Ready),
 						)
-						if err != nil {
-							log.Println(err)
+						if !sent {
+							menu.Game.Player.Reset()
 						}
 						break
 					case game.PlayerTypeUndefined:
@@ -320,32 +320,27 @@ func (menu *MenuScene) Load() bool {
 
 			imgui.SameLineV(0, pureMargin)
 
-			if *closingServer {
-				imgui.PushItemFlag(imgui.ItemFlagsDisabled, true)
-				imgui.PushStyleColor(
-					imgui.StyleColorButton,
-					imgui.Vec4{X: 0.30, Y: 0.30, Z: 0.30, W: 1.0},
-				)
-			}
-
 			if imgui.ButtonV("Abort", imgui.Vec2{X: buttonSize, Y: 0}) {
 				switch menu.Game.Player.Type {
 				case game.PlayerTypeServer:
-					err := menu.Game.Server.Server.Sessions[0].SendMessage(0, "Test.")
-					if err != nil {
-						log.Println(err)
+					if len(menu.Game.Server.Server.Sessions) > 0 {
+						menu.Game.Server.Server.SendMessage(
+							menu.Game.Server.Server.Sessions[0],
+							game.MessageTypeServerDisconnect, "",
+						)
 					}
+					menu.Game.Server.Server.CloseServer()
+					menu.Game.Player.Reset()
 					break
 				case game.PlayerTypeClient:
-					break
-				case game.PlayerTypeUndefined:
+					menu.Game.Client.Client.Session.Close()
+					menu.Game.Player.Reset()
 					break
 				}
 			}
 
-			if *closingServer {
-				imgui.PopStyleColor()
-				imgui.PopItemFlag()
+			if menu.Game.Player.Type == game.PlayerTypeUndefined {
+				menu.UIStack.SetSetting("main-menu")
 			}
 
 			imgui.End()

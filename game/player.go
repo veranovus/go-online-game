@@ -22,3 +22,9 @@ func NewPlayer() *Player {
 		Ready:      false,
 	}
 }
+
+func (p *Player) Reset() {
+	p.Type = PlayerTypeUndefined
+	p.OtherReady = false
+	p.Ready = false
+}
