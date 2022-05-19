@@ -1,10 +1,5 @@
 package game
 
-import (
-	"online-game/client"
-	"online-game/server"
-)
-
 const (
 	PlayerTypeUndefined = iota
 	PlayerTypeServer
@@ -14,15 +9,15 @@ const (
 type PlayerType int
 
 type Player struct {
-	Server *server.Server
-	Client *client.Client
-	Type   PlayerType
+	Type       PlayerType
+	OtherReady bool
+	Ready      bool
 }
 
-func NewPlayer(s *server.Server, c *client.Client) *Player {
+func NewPlayer() *Player {
 	return &Player{
-		Server: s,
-		Client: c,
-		Type:   PlayerTypeUndefined,
+		Type:       PlayerTypeUndefined,
+		OtherReady: false,
+		Ready:      false,
 	}
 }

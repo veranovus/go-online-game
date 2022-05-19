@@ -29,6 +29,10 @@ github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZb
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/pzsz/voronoi v0.0.0-20130609164533-4314be88c79f h1:YeUeWAPTrycaikVXiVoAu1dxIR4+tSsn9IbTkNfRsss=
 github.com/pzsz/voronoi v0.0.0-20130609164533-4314be88c79f/go.mod h1:T6EcHUIQ7r0Xr1jjOJ7hmpUaqVyqb9WimeNzS9nz4Zo=
+github.com/shrainu/gnet v0.0.0-20220518202339-313d4bd67dc1 h1:Zi2Muqz5oD60x3NQcABupdXKghxfhU40BCpkb5Qhqak=
+github.com/shrainu/gnet v0.0.0-20220518202339-313d4bd67dc1/go.mod h1:GE3JzB9EzOa8OQ0gjFnTwzj5XyBQp9Qj1/W4WJw1kTM=
+github.com/shrainu/gnet v0.0.0-20220519004335-af4930944cd4 h1:irl8/H7uzAWo/Fup1svMWBgZpIk0AORSo7VR2lAYJBU=
+github.com/shrainu/gnet v0.0.0-20220519004335-af4930944cd4/go.mod h1:GE3JzB9EzOa8OQ0gjFnTwzj5XyBQp9Qj1/W4WJw1kTM=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/testify v1.3.0 h1:TivCn/peBQ7UY8ooIcPgZFpTNSz0Q2U6UrFlUfqbe0Q=
 github.com/stretchr/testify v1.3.0/go.mod h1:M5WIy9Dh21IEIfnGCwXGc5bZfKNJtfHm1UVUgZn+9EI=

@@ -18,6 +18,7 @@ require (
 	github.com/go-gl/mathgl v0.0.0-20190416160123-c4601bc793c7 // indirect
 	github.com/pkg/errors v0.8.1 // indirect
 	github.com/pzsz/voronoi v0.0.0-20130609164533-4314be88c79f // indirect
+	github.com/shrainu/gnet v0.0.0-20220519004335-af4930944cd4 // indirect
 )
 
 replace github.com/inkyblackness/imgui-go v1.12.0 => github.com/inkyblackness/imgui-go/v4 v4.4.0

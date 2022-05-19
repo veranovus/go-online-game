@@ -10,7 +10,7 @@ import (
 type GameScene struct {
 	game.Scene
 
-	Player *game.Player
+	Game *game.Game
 
 	Window *pixelgl.Window
 
@@ -21,13 +21,13 @@ type GameScene struct {
 func NewGameScene(
 	win *pixelgl.Window,
 	ui *pixelui.UI,
-	player *game.Player,
+	g *game.Game,
 ) *GameScene {
 
 	s := &GameScene{
 		UI:     ui,
 		Window: win,
-		Player: player,
+		Game:   g,
 	}
 
 	// Set integrated scene
