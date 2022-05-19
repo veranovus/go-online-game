@@ -4,6 +4,7 @@ import (
 	"github.com/shrainu/gnet"
 	"log"
 	"strconv"
+	"strings"
 )
 
 type Client struct {
@@ -79,6 +80,15 @@ func (c *Client) ProcessMessages() {
 				c.Player.Reset()
 				c.Client.Session.Close()
 				return
+			case MessageTypeSetGameProperties:
+				divider := strings.Index(msg.Content, ";")
+
+				gameLength, _ := strconv.Atoi(msg.Content[:divider])
+				gameTime, _ := strconv.Atoi(msg.Content[divider+1:])
+
+				c.Player.GameLength = int32(gameLength)
+				c.Player.GameTime = int32(gameTime)
+				break
 			case MessageTypeSetReady:
 				b, err := strconv.ParseBool(msg.Content)
 				if err != nil {

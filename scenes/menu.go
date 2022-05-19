@@ -59,13 +59,6 @@ func (menu *MenuScene) Load() bool {
 	// String
 	joinIpString := new(string)
 
-	// Game
-	gameLength := new(int32)
-	*gameLength = 3
-
-	gameTime := new(int32)
-	*gameTime = 30
-
 	// Waits
 	closingServer := new(bool)
 	*closingServer = false
@@ -208,26 +201,11 @@ func (menu *MenuScene) Load() bool {
 				nameSize := imgui.WindowWidth() - (pureMargin*2 + 15 +
 					imgui.CalcTextSize("Ready", false, 0).X + pureMargin)
 
-				var otherString string
-				if menu.Game.Player.Type == game.PlayerTypeClient {
-					otherString = "Host"
-				} else {
-					otherString = "Guest"
-				}
-
-				imgui.ButtonV(otherString, imgui.Vec2{X: nameSize, Y: 0})
-
-				imgui.SameLineV(0, pureMargin)
-
 				imgui.PushItemFlag(imgui.ItemFlagsDisabled, true)
 
-				if imgui.Checkbox("Ready##Guest", &menu.Game.Player.OtherReady) {
-
-				}
+				imgui.ButtonV("You", imgui.Vec2{X: nameSize, Y: 0})
 
 				imgui.PopItemFlag()
-
-				imgui.ButtonV("You", imgui.Vec2{X: nameSize, Y: 0})
 
 				imgui.SameLineV(0, pureMargin)
 
@@ -258,6 +236,27 @@ func (menu *MenuScene) Load() bool {
 					}
 				}
 
+				var otherString string
+				if menu.Game.Player.Type == game.PlayerTypeServer {
+					if len(menu.Game.Server.Server.Sessions) > 0 {
+						otherString = "Guest"
+					} else {
+						otherString = "Empty"
+					}
+				} else {
+					otherString = "Host"
+				}
+
+				imgui.PushItemFlag(imgui.ItemFlagsDisabled, true)
+
+				imgui.ButtonV(otherString, imgui.Vec2{X: nameSize, Y: 0})
+
+				imgui.SameLineV(0, pureMargin)
+
+				imgui.Checkbox("Ready##Guest", &menu.Game.Player.OtherReady)
+
+				imgui.PopItemFlag()
+
 				imgui.SetCursorPos(imgui.CursorPos().Plus(imgui.Vec2{Y: pureMargin}))
 
 				imgui.EndTabItem()
@@ -265,25 +264,70 @@ func (menu *MenuScene) Load() bool {
 
 			if imgui.BeginTabItem("Settings") {
 
+				propChanged := false
+
 				imgui.SetCursorPos(imgui.CursorPos().Plus(imgui.Vec2{Y: pureMargin}))
 
 				imgui.Text("Win Condition")
 
+				if menu.Game.Player.Type == game.PlayerTypeClient {
+					imgui.PushItemFlag(imgui.ItemFlagsDisabled, true)
+					imgui.PushStyleColor(
+						imgui.StyleColorButton,
+						imgui.Vec4{X: 0.30, Y: 0.30, Z: 0.30, W: 1.0},
+					)
+				}
+
 				imgui.PushItemWidth(-1)
-				imgui.InputIntV("##GameLength", gameLength, 1, 100, 0)
+				if imgui.InputIntV("##GameLength", &menu.Game.Player.GameLength,
+					1, 100, 0) {
+					if menu.Game.Player.GameLength < 2 {
+						menu.Game.Player.GameLength = 2
+					} else if menu.Game.Player.GameLength > 12 {
+						menu.Game.Player.GameLength = 12
+					}
+
+					propChanged = true
+				}
+
+				if menu.Game.Player.Type == game.PlayerTypeClient {
+					imgui.PopStyleColor()
+					imgui.PopItemFlag()
+				}
 
 				imgui.Text("Round Time (seconds)")
 
+				if menu.Game.Player.Type == game.PlayerTypeClient {
+					imgui.PushItemFlag(imgui.ItemFlagsDisabled, true)
+					imgui.PushStyleColor(
+						imgui.StyleColorButton,
+						imgui.Vec4{X: 0.30, Y: 0.30, Z: 0.30, W: 1.0},
+					)
+				}
+
 				imgui.PushItemWidth(-1)
-				if imgui.InputIntV("##GameTime", gameTime, 30, 100, 0) {
-					if *gameTime < 30 {
-						*gameTime = 30
-					} else if *gameTime > 300 {
-						*gameTime = 300
+				if imgui.InputIntV("##GameTime", &menu.Game.Player.GameTime,
+					30, 100, 0) {
+
+					if menu.Game.Player.GameTime < 30 {
+						menu.Game.Player.GameTime = 30
+					} else if menu.Game.Player.GameTime > 300 {
+						menu.Game.Player.GameTime = 300
 					}
+
+					propChanged = true
+				}
+
+				if menu.Game.Player.Type == game.PlayerTypeClient {
+					imgui.PopStyleColor()
+					imgui.PopItemFlag()
 				}
 
 				imgui.SetCursorPos(imgui.CursorPos().Plus(imgui.Vec2{Y: pureMargin}))
+
+				if propChanged && menu.Game.Player.Type == game.PlayerTypeServer {
+					menu.Game.Server.SendGameProperties()
+				}
 
 				imgui.EndTabItem()
 			}

@@ -3,15 +3,13 @@
 Classic "Rock Paper Scissor" game made in Golang using SDL2 and
 Golang networking module. 
 
-> Version 0.14
+> Version 0.15
 
 ## Changelog
 
-- Host can close the server.
-- Ready status is persistent after the user 
-quits and rejoins
-- Improved quiting for both user and client
-- Updated gnet version to latest
+- Shared game settings.
+- Client no longer can modify the game settings.
+- UI improvements.
 
 ## Usage
 

@@ -1,6 +1,7 @@
 package game
 
 import (
+	"fmt"
 	"github.com/shrainu/gnet"
 	"log"
 	"strconv"
@@ -9,6 +10,21 @@ import (
 type Server struct {
 	Player *Player
 	Server *gnet.Server
+}
+
+func (s *Server) SendGameProperties() {
+	msg := fmt.Sprintf(
+		"%d;%d",
+		s.Player.GameLength,
+		s.Player.GameTime,
+	)
+	if len(s.Server.Sessions) > 0 {
+		s.Server.SendMessage(
+			s.Server.Sessions[0],
+			MessageTypeSetGameProperties,
+			msg,
+		)
+	}
 }
 
 func (s *Server) Shuffle(key uint64) uint64 {
@@ -52,6 +68,7 @@ func (s *Server) OnUserMessages(msg gnet.Message) {
 				MessageTypeSetReady,
 				strconv.FormatBool(s.Player.Ready),
 			)
+			s.SendGameProperties()
 		}
 		break
 	case MessageTypeUserDisconnect:

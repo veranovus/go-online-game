@@ -5,12 +5,14 @@ const (
 
 	MessageTypeUserPassword
 
-	MessageTypeUserAuthFailed // TODO : Add functionality.
+	MessageTypeUserAuthFailed
 	MessageTypeUserAuthSuccessful
 
 	MessageTypeServerDisconnect
 	MessageTypeUserDisconnect
 
 	MessageTypeSetReady
+	MessageTypeSetGameProperties
+
 	MessageTypePick
 )
