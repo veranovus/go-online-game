@@ -25,6 +25,16 @@ func NewClient(p *Player) *Client {
 	return c
 }
 
+func (c *Client) SendPassword() {
+	err := c.Client.Session.SendMessage(
+		MessageTypeUserPassword,
+		c.Player.Password,
+	)
+	if err != nil {
+		log.Println(err)
+	}
+}
+
 func (c *Client) WaitForConnection() bool {
 	if c.Client.Session == nil || !c.Client.Connected() {
 		return false
@@ -37,12 +47,27 @@ func (c *Client) ProcessMessages() {
 		continue
 	}
 
+	first := true
+
 	for c.Client.Connected() {
 		for msg := range c.Client.Channel {
 
 			switch msg.Type {
 			case MessageTypeMessage:
 				log.Printf("[SERVER] `%s`\n", msg.Content)
+
+				if first {
+					c.SendPassword()
+					first = false
+				}
+				break
+			case MessageTypeUserAuthFailed:
+				log.Println("[SERVER] Password authentication failed.")
+				log.Println("[CLIENT] Disconnected.")
+				c.Client.Session.Close()
+				return
+			case MessageTypeUserAuthSuccessful:
+				log.Println("[SERVER] Password authentication successful.")
 				break
 			case MessageTypeServerDisconnect:
 				log.Println("[SERVER] Disconnected.")

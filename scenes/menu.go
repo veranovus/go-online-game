@@ -58,7 +58,6 @@ func (menu *MenuScene) Load() bool {
 
 	// String
 	joinIpString := new(string)
-	joinPassString := new(string)
 
 	// Game
 	gameLength := new(int32)
@@ -123,7 +122,7 @@ func (menu *MenuScene) Load() bool {
 
 			imgui.InputText("Host IP", joinIpString)
 
-			imgui.InputTextV("Password", joinPassString, imgui.InputTextFlagsPassword, nil)
+			imgui.InputTextV("Password", &menu.Game.Player.Password, imgui.InputTextFlagsPassword, nil)
 
 			if imgui.ButtonV("Join", imgui.Vec2{X: buttonSize, Y: 0}) {
 				menu.UIStack.SetSetting("host-game-menu")
@@ -164,7 +163,7 @@ func (menu *MenuScene) Load() bool {
 
 			imgui.InputText("Host IP", joinIpString)
 
-			imgui.InputTextV("Password", joinPassString, imgui.InputTextFlagsPassword, nil)
+			imgui.InputTextV("Password", &menu.Game.Player.Password, imgui.InputTextFlagsPassword, nil)
 
 			if imgui.ButtonV("Host", imgui.Vec2{X: buttonSize, Y: 0}) {
 				menu.UIStack.SetSetting("host-game-menu")

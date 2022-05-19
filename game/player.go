@@ -10,6 +10,7 @@ type PlayerType int
 
 type Player struct {
 	Type       PlayerType
+	Password   string
 	OtherReady bool
 	Ready      bool
 }
