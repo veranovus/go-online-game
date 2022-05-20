@@ -3,13 +3,11 @@
 Classic "Rock Paper Scissor" game made in Golang using SDL2 and
 Golang networking module. 
 
-> Version 0.15
+> Version 0.16
 
 ## Changelog
 
-- Shared game settings.
-- Client no longer can modify the game settings.
-- UI improvements.
+- Game scene foundation
 
 ## Usage
 

@@ -1,7 +1,6 @@
 package scenes
 
 import (
-	"fmt"
 	"github.com/dusk125/pixelui"
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/inkyblackness/imgui-go"
@@ -352,7 +351,13 @@ func (menu *MenuScene) Load() bool {
 			}
 
 			if imgui.ButtonV("Start", imgui.Vec2{X: buttonSize, Y: 0}) {
-				fmt.Println("PRESSED!")
+				menu.Game.Server.Server.SendMessage(
+					menu.Game.Server.Server.Sessions[0],
+					game.MessageTypeStartGame,
+					"",
+				)
+
+				menu.Game.Player.StartGame = true
 			}
 
 			if menu.Game.Player.Type == game.PlayerTypeClient ||
@@ -385,6 +390,9 @@ func (menu *MenuScene) Load() bool {
 
 			if menu.Game.Player.Type == game.PlayerTypeUndefined {
 				menu.UIStack.SetSetting("main-menu")
+			} else if menu.Game.Player.StartGame {
+				menu.ReturnState = game.SceneStateChange + SceneIndexGame
+				menu.Game.Player.StartGame = false
 			}
 
 			imgui.End()

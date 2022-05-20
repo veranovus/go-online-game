@@ -13,6 +13,14 @@ const (
 
 	MessageTypeSetReady
 	MessageTypeSetGameProperties
+	MessageTypeStartGame
 
 	MessageTypePick
+)
+
+const (
+	CardTypeNone = iota
+	CardTypeRock
+	CardTypePaper
+	CardTypeScissor
 )

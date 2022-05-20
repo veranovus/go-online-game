@@ -1,23 +1,28 @@
 package game
 
 import (
+	"fmt"
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/imdraw"
+	"github.com/faiface/pixel/pixelgl"
 	"github.com/faiface/pixel/text"
 	"golang.org/x/image/font/basicfont"
 	"image/color"
+	"log"
 )
 
 type Graphics struct {
-	Text  *text.Text
-	Atlas *text.Atlas
-	IMD   *imdraw.IMDraw
+	Text   *text.Text
+	Atlas  *text.Atlas
+	IMD    *imdraw.IMDraw
+	Window *pixelgl.Window
 }
 
-func NewGraphics() *Graphics {
+func NewGraphics(win *pixelgl.Window) *Graphics {
 	g := &Graphics{
-		Atlas: text.NewAtlas(basicfont.Face7x13, text.ASCII),
-		IMD:   imdraw.New(nil),
+		Atlas:  text.NewAtlas(basicfont.Face7x13, text.ASCII),
+		IMD:    imdraw.New(nil),
+		Window: win,
 	}
 
 	g.Text = text.New(pixel.V(0, 0), g.Atlas)
@@ -45,6 +50,15 @@ func (g *Graphics) DrawRectLines(thickness, x, y, w, h float64, color color.Colo
 	g.IMD.Line(thickness)
 }
 
-func (g *Graphics) DrawText(x, y float64, color color.Color) {
+func (g *Graphics) DrawText(text string, x, y float64, color color.Color) {
 
+	g.Text.Clear()
+
+	_, err := fmt.Fprintln(g.Text, text)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	g.Text.Color = color
+	g.Text.Draw(g.Window, pixel.IM.Moved(pixel.V(x, y)))
 }

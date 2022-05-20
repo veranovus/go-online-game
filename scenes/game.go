@@ -1,9 +1,11 @@
 package scenes
 
 import (
+	"fmt"
 	"github.com/dusk125/pixelui"
-	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
+	"github.com/inkyblackness/imgui-go"
+	"golang.org/x/image/colornames"
 	"online-game/game"
 )
 
@@ -12,7 +14,8 @@ type GameScene struct {
 
 	Game *game.Game
 
-	Window *pixelgl.Window
+	Window   *pixelgl.Window
+	Graphics *game.Graphics
 
 	UI      *pixelui.UI
 	UIStack game.UILayerStack
@@ -36,6 +39,9 @@ func NewGameScene(
 	// Set-up UI Stack
 	s.UIStack = game.NewUILayerStack(s.UI)
 
+	// Graphics
+	s.Graphics = game.NewGraphics(s.Window)
+
 	return s
 }
 
@@ -55,17 +61,79 @@ func (menu *GameScene) Load() bool {
 
 	// Window size
 	winSize := menu.Window.Bounds().Size()
+	_ = winSize
 
 	// Layers
 	tempLayer := func(ui *pixelui.UI) {
 
-		margin := pixel.V(20, 20)
+		changed := false
 
-		elementSize := pixel.V(110, 30)
+		buttonSize := imgui.Vec2{X: 80, Y: 50}
+		//buttonMargin := (winSize.X - buttonSize.X*3) / 4
+		//buttonPos := pixel.V(buttonMargin, 40)
 
-		elementPos := winSize.Sub(elementSize).Scaled(0.5)
+		windowFlags := imgui.WindowFlagsNoCollapse | imgui.WindowFlagsNoMove |
+			imgui.WindowFlagsNoScrollbar | imgui.WindowFlagsNoResize |
+			imgui.WindowFlagsNoScrollWithMouse | imgui.WindowFlagsNoBringToFrontOnFocus
 
-		_ = elementPos.Add(margin)
+		if imgui.BeginV("##Select", nil, windowFlags) {
+
+			menu.Graphics.DrawText(
+				fmt.Sprintf("YOU: %02d", menu.Game.Player.Score),
+				5, winSize.Y-17, colornames.White,
+			)
+
+			menu.Graphics.DrawText(
+				fmt.Sprintf("HOST: %02d", menu.Game.Player.OtherScore),
+				winSize.X-60, winSize.Y-17, colornames.White,
+			)
+
+			if menu.Game.Player.Card != game.CardTypeNone {
+				imgui.PushItemFlag(imgui.ItemFlagsDisabled, true)
+				imgui.PushStyleColor(
+					imgui.StyleColorButton,
+					imgui.Vec4{X: 0.30, Y: 0.30, Z: 0.30, W: 1.0},
+				)
+			}
+
+			imguiMargin := imgui.CursorPos().X
+			margin := (imgui.WindowWidth() - (imguiMargin*2 + buttonSize.X*3)) / 2
+
+			if imgui.ButtonV("Rock", buttonSize) {
+
+				menu.Game.Player.Card = game.CardTypeRock
+				changed = true
+			}
+
+			imgui.SameLineV(0, margin)
+
+			if imgui.ButtonV("Paper", buttonSize) {
+
+				menu.Game.Player.Card = game.CardTypePaper
+				changed = true
+			}
+
+			imgui.SameLineV(0, margin)
+
+			if imgui.ButtonV("Scissor", buttonSize) {
+
+				menu.Game.Player.Card = game.CardTypeScissor
+				changed = true
+			}
+
+			if menu.Game.Player.Card != game.CardTypeNone && !changed {
+				imgui.PopStyleColor()
+				imgui.PopItemFlag()
+			}
+		}
+		imgui.End()
+
+		if menu.Game.Player.Card != game.CardTypeNone && changed {
+			menu.Game.Client.SendMessage(
+				game.MessageTypePick,
+				fmt.Sprint(menu.Game.Player.Card),
+			)
+		}
 	}
 	menu.UIStack.PushLayer(tempLayer)
 

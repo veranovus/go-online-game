@@ -97,6 +97,9 @@ func (c *Client) ProcessMessages() {
 					c.Player.OtherReady = b
 				}
 				break
+			case MessageTypeStartGame:
+				c.Player.StartGame = true
+				break
 			default:
 				log.Println("[CLIENT] Unhandled, or unknown message type.")
 				break
